@@ -97,10 +97,6 @@ const createCompose = curry((F, G) => class Compose {
     this.$value = x;
   }
 
-  [util.inspect.custom]() {
-    return `Compose(${inspect(this.$value)})`;
-  }
-
   // ----- Pointed (Compose F G)
   static of(x) {
     return new Compose(F(G(x)));
@@ -141,10 +137,6 @@ class Left extends Either {
 
   static of(x) {
     throw new Error('`of` called on class Left (value) instead of Either (type)');
-  }
-
-  [util.inspect.custom]() {
-    return `Left(${inspect(this.$value)})`;
   }
 
   // ----- Functor (Either a)
@@ -190,10 +182,6 @@ class Right extends Either {
     throw new Error('`of` called on class Right (value) instead of Either (type)');
   }
 
-  [util.inspect.custom]() {
-    return `Right(${inspect(this.$value)})`;
-  }
-
   // ----- Functor (Either a)
   map(fn) {
     return Either.of(fn(this.$value));
@@ -227,10 +215,6 @@ class Right extends Either {
 class Identity {
   constructor(x) {
     this.$value = x;
-  }
-
-  [util.inspect.custom]() {
-    return `Identity(${inspect(this.$value)})`;
   }
 
   // ----- Pointed Identity
@@ -273,10 +257,6 @@ class IO {
     this.unsafePerformIO = fn;
   }
 
-  [util.inspect.custom]() {
-    return 'IO(?)';
-  }
-
   // ----- Pointed IO
   static of(x) {
     return new IO(() => x);
@@ -306,10 +286,6 @@ class IO {
 class List {
   constructor(xs) {
     this.$value = xs;
-  }
-
-  [util.inspect.custom]() {
-    return `List(${inspect(this.$value)})`;
   }
 
   concat(x) {
@@ -343,10 +319,6 @@ class List {
 class Map {
   constructor(x) {
     this.$value = x;
-  }
-
-  [util.inspect.custom]() {
-    return `Map(${inspect(this.$value)})`;
   }
 
   insert(k, v) {
@@ -395,10 +367,6 @@ class Maybe {
     this.$value = x;
   }
 
-  [util.inspect.custom]() {
-    return this.isNothing ? 'Nothing' : `Just(${inspect(this.$value)})`;
-  }
-
   // ----- Pointed Maybe
   static of(x) {
     return new Maybe(x);
@@ -437,10 +405,6 @@ class Maybe {
 class Task {
   constructor(fork) {
     this.fork = fork;
-  }
-
-  [util.inspect.custom]() {
-    return 'Task(?)';
   }
 
   static rejected(x) {
