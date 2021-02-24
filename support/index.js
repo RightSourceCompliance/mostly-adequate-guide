@@ -5,6 +5,11 @@ export function testing() {
   console.log("this worked"); 
 }
 
+export class MyTest {
+   constructor() {
+      console.log('My Test works')
+   }
+}
 
 /**
 // identity :: x -> x
