@@ -1,6 +1,231 @@
 /* LICENSE MIT-2.0 - @MostlyAdequate */
 /* eslint-disable no-use-before-define, max-len, class-methods-use-this */
 
+// identity :: x -> x
+const identity = x => x;
+
+function curry(fn) {
+  const arity = fn.length;
+
+  return function $curry(...args) {
+    if (args.length < arity) {
+      return $curry.bind(null, ...args);
+    }
+
+    return fn.call(null, ...args);
+  };
+}
+
+export class Maybe {
+    get isNothing() {
+        return this.$value === null || this.$value === undefined;
+    }
+
+    get isJust() {
+        return !this.isNothing;
+    }
+
+    constructor(x) {
+        this.$value = x;
+    }
+
+    // ----- Pointed Maybe
+    static of(x) {
+        return new Maybe(x);
+    }
+
+    // ----- Functor Maybe
+    map(fn) {
+        return this.isNothing ? this : Maybe.of(fn(this.$value));
+    }
+
+    // ----- Applicative Maybe
+    ap(f) {
+        return this.isNothing ? this : f.map(this.$value);
+    }
+
+    // ----- Monad Maybe
+    chain(fn) {
+        return this.map(fn).join();
+    }
+
+    join() {
+        return this.isNothing ? this : this.$value;
+    }
+
+    // ----- Traversable Maybe
+    sequence(of) {
+        return this.traverse(of, identity);
+    }
+
+    traverse(of, fn) {
+        return this.isNothing ? of(this) : fn(this.$value).map(Maybe.of);
+    }
+}
+
+// liftA2 :: (Applicative f) => (a1 -> a2 -> b) -> f a1 -> f a2 -> f b
+export const liftA2 = curry((fn, a1, a2) => a1.map(fn).ap(a2));
+
+// map :: Functor f => (a -> b) -> f a -> f b
+export const map = curry((fn, f) => f.map(fn));
+
+export class Identity {
+    constructor(x) {
+        this.$value = x;
+    }
+
+    // ----- Pointed Identity
+    static of(x) {
+        return new Identity(x);
+    }
+
+    // ----- Functor Identity
+    map(fn) {
+        return Identity.of(fn(this.$value));
+    }
+
+    // ----- Applicative Identity
+    ap(f) {
+        return f.map(this.$value);
+    }
+
+    // ----- Monad Identity
+    chain(fn) {
+        return this.map(fn).join();
+    }
+
+    join() {
+        return this.$value;
+    }
+
+    // ----- Traversable Identity
+    sequence(of) {
+        return this.traverse(of, identity);
+    }
+
+    traverse(of, fn) {
+        return fn(this.$value).map(Identity.of);
+    }
+}
+
+// left :: a -> Either a b
+export const left = a => new Left(a);
+
+export class Either {
+    constructor(x) {
+        this.$value = x;
+    }
+
+    // ----- Pointed (Either a)
+    static of(x) {
+        return new Right(x);
+    }
+}
+
+export class Left extends Either {
+    get isLeft() {
+        return true;
+    }
+
+    get isRight() {
+        return false;
+    }
+
+    static of(x) {
+        throw new Error('`of` called on class Left (value) instead of Either (type)');
+    }
+
+    // ----- Functor (Either a)
+    map() {
+        return this;
+    }
+
+    // ----- Applicative (Either a)
+    ap() {
+        return this;
+    }
+
+    // ----- Monad (Either a)
+    chain() {
+        return this;
+    }
+
+    join() {
+        return this;
+    }
+
+    // ----- Traversable (Either a)
+    sequence(of) {
+        return of(this);
+    }
+
+    traverse(of, fn) {
+        return of(this);
+    }
+}
+
+export class Right extends Either {
+    get isLeft() {
+        return false;
+    }
+
+    get isRight() {
+        return true;
+    }
+
+    static of(x) {
+        throw new Error('`of` called on class Right (value) instead of Either (type)');
+    }
+
+    // ----- Functor (Either a)
+    map(fn) {
+        return Either.of(fn(this.$value));
+    }
+
+    // ----- Applicative (Either a)
+    ap(f) {
+        return f.map(this.$value);
+    }
+
+    // ----- Monad (Either a)
+    chain(fn) {
+        return fn(this.$value);
+    }
+
+    join() {
+        return this.$value;
+    }
+
+    // ----- Traversable (Either a)
+    sequence(of) {
+        return this.traverse(of, identity);
+    }
+
+    traverse(of, fn) {
+        fn(this.$value).map(Either.of);
+    }
+}
+
+// either :: (a -> c) -> (b -> c) -> Either a b -> c
+export const either = curry((f, g, e) => {
+    if (e.isLeft) {
+        return f(e.$value);
+    }
+
+    return g(e.$value);
+});
+
+// maybe :: b -> (a -> b) -> Maybe a -> b
+export const maybe = curry((v, f, m) => {
+    if (m.isNothing) {
+        return v;
+    }
+
+    return f(m.$value);
+});
+
+
+/**
 const util = require('util');
 
 // always :: a -> b -> a
@@ -623,3 +848,4 @@ exports.toString = toString;
 exports.toUpperCase = toUpperCase;
 exports.traverse = traverse;
 exports.unsafePerformIO = unsafePerformIO;
+*/
