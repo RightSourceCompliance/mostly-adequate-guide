@@ -1,6 +1,12 @@
 /* LICENSE MIT-2.0 - @MostlyAdequate */
 /* eslint-disable no-use-before-define, max-len, class-methods-use-this */
 
+export function testing() {
+  console.log("this worked"); 
+}
+
+
+/**
 // identity :: x -> x
 const identity = x => x;
 
@@ -223,7 +229,7 @@ export const maybe = curry((v, f, m) => {
 
     return f(m.$value);
 });
-
+*/
 
 /**
 const util = require('util');
